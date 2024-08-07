@@ -41,7 +41,7 @@ function AjaxFn(url, data, callbackFn) {
         headers: {
             'Authorization': localStorage.getItem('token')||'',
           },
-        'url': window.Ow_Server + url,
+        'url': apihost + url,
         'type': 'POST',
         'data': data,
         'error': function(err) {},
