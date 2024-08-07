@@ -37,13 +37,12 @@ var numberTest = function(v) {
 
 
 function AjaxFn(url, data, callbackFn) {
+    var data2=data
+    data2.token=localStorage.getItem('token')||'';
     $.ajax({
-        headers: {
-            'Authorization': localStorage.getItem('token')||'',
-          },
         'url': apihost + url,
         'type': 'POST',
-        'data': data,
+        'data': data2,
         'error': function(err) {},
         'success': function(res) {
             callbackFn(res);
