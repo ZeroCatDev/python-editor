@@ -74,7 +74,7 @@ function show_python_work(work) {
   window.location.hash = work.id;
   $("#work_title_input").val(work.title);
   $("#work_info_input").val(work.description);
-  window.editor.setValue(work.src); //设置作品源代码
+  window.editor.setValue(work.source); //设置作品源代码
 
   _work_id = work.id;
   _work_state = work.state;
@@ -141,7 +141,7 @@ $("#files").change(function () {
           id: 0,
           state: 0,
           title: _work_title,
-          src: this.result,
+          source: this.result,
         });
         document.getElementById("files").value = "";
       });
@@ -158,9 +158,9 @@ function save_file() {
 
   _work_title = t;
 
-  src = editor.getValue()
+  source = editor.getValue()
 
-  var n = new File([src], _work_title + ".py", {
+  var n = new File([source], _work_title + ".py", {
     type: "text/plain;charset=utf-8",
   });
   saveAs(n);
@@ -267,7 +267,7 @@ function builtinRead(n) {
 }
 // 代码模式运行
 function run_it() {
-  src = editor.getValue()
+  source = editor.getValue()
 
   var OP_Div = document.getElementById("output");
   OP_Div.innerHTML = "";
@@ -277,7 +277,7 @@ function run_it() {
   (Sk.TurtleGraphics || (Sk.TurtleGraphics = {}))["target"] = "pythoncanvas";
   var draw_ = Sk.misceval.asyncToPromise(function () {
     f();
-    return Sk.importMainWithBody("<stdin>", ![], src, !![]);
+    return Sk.importMainWithBody("<stdin>", ![], source, !![]);
   });
   draw_.then(
     function (r) {},
@@ -320,10 +320,53 @@ function u(C, W, H) {
   }
 }
 
+// 全屏运行部分
+var not_all_screen = `
+  <div class="layui-col-md4 layui-col-sm12 layui-col-xs12" style="padding: 0;">
+  <div class="layui-row">
+    <div class="layui-col-md12 layui-col-sm6 layui-col-xs12" style="padding: 0;">
+      <div id="canvas_box" style="height:calc(50vh); background:url(png) no-repeat center;background-size: contain;background-size:auto 100%;">
+        <div id="pythoncanvas"></div>
+      </div>
+    </div>
+
+    <div class="layui-col-md12 layui-col-sm6 layui-col-xs12" style="padding: 0; margin:0;background-color: rgb(0, 0, 0);height:calc(50vh - 52px);">
+      <textarea id="output" style="height: 100%;width: 100%;" disabled>终端打印输出区</textarea>
+    </div>
+  </div>
+</div>
+    `;
+var all_screen = `
+  <div class="layui-col-md12 layui-col-sm12 layui-col-xs12" style="padding: 0;">
+  <div id="canvas_box" style="height:calc(100vh - 52px); background:url(png) no-repeat center;background-size: contain;background-size:auto 100%;">
+    <div id="pythoncanvas"></div>
+  </div>
+</div>
+
+<div class="layui-col-md12 layui-col-sm12 layui-col-xs12" style="padding: 0; margin:0;background-color: rgb(0, 0, 0);height:calc(100vh);">
+  <textarea id="output" style="height: 100%;width: 100%;" disabled>终端打印输出区</textarea>
+</div>
+  `;
+var _is_all_screen = false;
+function all_Screen(obj) {
+  if (_is_all_screen) {
+    //已经是全屏，回到正常界面
+    $(obj).text("全屏运行");
+    $("#main_edit_box").html(not_all_screen);
+    $(`#python_edit_box`).show();
+  } else {
+    $(obj).text("返回编辑界面");
+    $("#main_edit_box").html(all_screen);
+    $(`#python_edit_box`).hide();
+  }
+
+  _is_all_screen = !_is_all_screen;
+}
+
 // 从优秀作品、我的作品中打开一个作品
 function openProject(id, index) {
   layer.close(index);
-  window.open(`/edit.html#${id}`, "_self"); //
+  window.open(`/python/edit#${id}`, "_self"); //
   getWork(id);
 }
 
@@ -387,6 +430,7 @@ function open_YX() {
 </div>
 </div>
 `;
+
                 lis.push(content);
               }
 
@@ -406,7 +450,9 @@ function open_MY() {
       automsg(res.msg);
       return;
     }
+
     var project_count = res.total / 16;
+
     layer.open({
       type: 1,
       title: "我的作品",
@@ -417,6 +463,7 @@ function open_MY() {
       content: `<div class="layui-fluid" style="margin: 20px auto;">
                         <div class="mdui-row" id="lay_flow"></div>
                     </div>`,
+
       success: function (layero, index) {
         //流加载页面数据
         layui.flow.load({
@@ -451,7 +498,7 @@ function open_MY() {
   </div>
   <div class="mdui-card-actions">
     <button class="mdui-btn mdui-ripple" onClick="openProject(${p.id}, ${index})" style="border-radius: 10px;">打开</button>
-    <button class="mdui-btn mdui-btn-icon mdui-float-right" onclick='window.open("/edit.html#${p.id}")'>
+    <button class="mdui-btn mdui-btn-icon mdui-float-right" onclick='window.open("/python/edit#${p.id}")'>
     <i class="mdui-icon material-icons">open_in_new</i>
     </button>
   </div>

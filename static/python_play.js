@@ -95,22 +95,17 @@ function show_python_work(work) {
   document.getElementById("description").innerText = `${work.description}`;
 
   console.log(work);
-  if (work.state=='0'){
+  if (work.state=='private'){
     document.querySelector('#projectstate').setAttribute('icon', 'lock_person');
     document.querySelector('#projectstate').innerText='未分享'
 
   }
-  else if (work.state=='1'){
+  else if (work.state=='public'){
     document.querySelector('#projectstate').setAttribute('icon', 'share');
     document.querySelector('#projectstate').innerText='公开作品'
 
   }
 
-  else if (work.state=='2'){
-    document.querySelector('#projectstate').setAttribute('icon', 'star');
-    document.querySelector('#projectstate').innerText='优秀作品'
-
-  }
   AjaxGet(
     `/api/getuserinfo`,
     { id: work.authorid },
@@ -123,7 +118,7 @@ function show_python_work(work) {
       }
     }
   );
-  window.editor.setValue(work.src); //设置作品源代码
+  window.editor.setValue(work.source); //设置作品源代码
 
   _work_id = work.id;
   _work_state = work.state;
@@ -146,7 +141,7 @@ function builtinRead(n) {
 }
 // 代码模式运行
 function run_it() {
-  src = window.editor.getValue();
+  source = window.editor.getValue();
 
   var OP_Div = document.getElementById("output");
   OP_Div.innerText = "";
@@ -156,7 +151,7 @@ function run_it() {
   (Sk.TurtleGraphics || (Sk.TurtleGraphics = {}))["target"] = "pythoncanvas";
   var draw_ = Sk.misceval.asyncToPromise(function () {
     f();
-    return Sk.importMainWithBody("<stdin>", ![], src, !![]);
+    return Sk.importMainWithBody("<stdin>", ![], source, !![]);
   });
   draw_.then(
     function (r) {},
